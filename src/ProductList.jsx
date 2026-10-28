@@ -39,15 +39,20 @@ function ProductList({ go }) {
   const totalCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const inCart = (name) => items.some((item) => item.name === name);
 
+  const handleHomeClick = (e) => { e.preventDefault(); go('home'); };
+  const handlePlantsClick = (e) => { e.preventDefault(); go('plants'); };
+  const handleCartClick = (e) => { e.preventDefault(); go('cart'); };
+  const handleAddToCart = (plant) => dispatch(addItem(plant));
+
   return (
     <div>
       <nav className="navbar">
         <span className="brand">Paradise Nursery</span>
         <div className="links">
-          <a href="#" onClick={(e) => { e.preventDefault(); go('home'); }}>Home</a>
-          <a href="#" onClick={(e) => { e.preventDefault(); go('plants'); }}>Plants</a>
-          <a href="#" className="cart-link" onClick={(e) => { e.preventDefault(); go('cart'); }}>
-            Cart <span className="cart-icon" aria-label="Cart items">🛒 <b>{totalCount}</b></span>
+          <a href="#" onClick={handleHomeClick}>Home</a>
+          <a href="#" onClick={handlePlantsClick}>Plants</a>
+          <a href="#" className="cart-link" onClick={handleCartClick}>
+            Cart <span className="cart_icon" aria-label="Cart items">🛒 <b>{totalCount}</b></span>
           </a>
         </div>
       </nav>
@@ -56,16 +61,16 @@ function ProductList({ go }) {
         {categories.map((cat) => (
           <section key={cat.title}>
             <h2>{cat.title}</h2>
-            <div className="grid">
+            <div className="product-grid">
               {cat.plants.map((plant) => (
-                <div className="card" key={plant.name}>
+                <div className="product-card" key={plant.name}>
                   <img src={plant.image} alt={plant.name} />
-                  <h3>{plant.name}</h3>
-                  <p className="price">${plant.cost}</p>
+                  <h3 className="product-title">{plant.name}</h3>
+                  <p className="product-price">${plant.cost}</p>
                   <button
-                    className="btn"
+                    className="product-button"
                     disabled={inCart(plant.name)}
-                    onClick={() => dispatch(addItem(plant))}
+                    onClick={() => handleAddToCart(plant)}
                   >
                     {inCart(plant.name) ? 'Added to Cart' : 'Add to Cart'}
                   </button>

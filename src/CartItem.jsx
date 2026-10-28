@@ -4,15 +4,30 @@ import { removeItem, updateQuantity } from './CartSlice';
 
 function CartItem({ go }) {
   const dispatch = useDispatch();
-  const items = useSelector((state) => state.cart.items);
-  const totalCount = items.reduce((sum, item) => sum + item.quantity, 0);
-  const totalAmount = items.reduce((sum, item) => sum + item.cost * item.quantity, 0);
+  const cart = useSelector((state) => state.cart.items);
+  const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  const increase = (item) => dispatch(updateQuantity({ name: item.name, quantity: item.quantity + 1 }));
-  const decrease = (item) =>
-    item.quantity > 1
-      ? dispatch(updateQuantity({ name: item.name, quantity: item.quantity - 1 }))
-      : dispatch(removeItem(item.name));
+  // Total cost of one plant line (unit price x quantity)
+  const calculateTotalCost = (item) => item.cost * item.quantity;
+
+  // Total amount for all plants in the cart
+  const calculateTotalAmount = () =>
+    cart.reduce((total, item) => total + calculateTotalCost(item), 0);
+
+  const handleIncrement = (item) =>
+    dispatch(updateQuantity({ name: item.name, quantity: item.quantity + 1 }));
+
+  const handleDecrement = (item) => {
+    if (item.quantity > 1) {
+      dispatch(updateQuantity({ name: item.name, quantity: item.quantity - 1 }));
+    } else {
+      dispatch(removeItem(item.name));
+    }
+  };
+
+  const handleRemove = (item) => dispatch(removeItem(item.name));
+  const handleContinueShopping = (e) => { e.preventDefault(); go('plants'); };
+  const handleCheckoutShopping = () => alert('Checkout: Coming Soon');
 
   return (
     <div>
@@ -20,40 +35,39 @@ function CartItem({ go }) {
         <span className="brand">Paradise Nursery</span>
         <div className="links">
           <a href="#" onClick={(e) => { e.preventDefault(); go('home'); }}>Home</a>
-          <a href="#" onClick={(e) => { e.preventDefault(); go('plants'); }}>Plants</a>
-          <a href="#" className="cart-link" onClick={(e) => { e.preventDefault(); go('cart'); }}>
-            Cart <span className="cart-icon" aria-label="Cart items">🛒 <b>{totalCount}</b></span>
+          <a href="#" onClick={handleContinueShopping}>Plants</a>
+          <a href="#" onClick={(e) => { e.preventDefault(); go('cart'); }}>
+            Cart <span className="cart_icon" aria-label="Cart items">🛒 <b>{totalCount}</b></span>
           </a>
         </div>
       </nav>
 
-      <main className="page">
-        <h2>Shopping Cart</h2>
-        {items.length === 0 && <p>Your cart is empty. Browse the plants to add some.</p>}
+      <div className="cart-container">
+        <h2 className="total_cart_amount">Total Cart Amount: ${calculateTotalAmount()}</h2>
+        {cart.length === 0 && <p>Your cart is empty. Browse the plants to add some.</p>}
 
-        {items.map((item) => (
-          <div className="cart-row" key={item.name}>
-            <img src={item.image} alt={item.name} />
-            <div className="cart-info">
-              <h3>{item.name}</h3>
-              <p>Unit price: ${item.cost}</p>
+        {cart.map((item) => (
+          <div className="cart-item" key={item.name}>
+            <img className="cart-item-image" src={item.image} alt={item.name} />
+            <div className="cart-item-details">
+              <div className="cart-item-name">{item.name}</div>
+              <div className="cart-item-cost">Unit price: ${item.cost}</div>
+              <div className="cart-item-quantity">
+                <button className="cart-item-button" onClick={() => handleDecrement(item)} aria-label={`Decrease ${item.name}`}>−</button>
+                <span className="cart-item-quantity-value">{item.quantity}</span>
+                <button className="cart-item-button" onClick={() => handleIncrement(item)} aria-label={`Increase ${item.name}`}>+</button>
+              </div>
+              <div className="cart-item-total">Total: ${calculateTotalCost(item)}</div>
             </div>
-            <div className="qty">
-              <button onClick={() => decrease(item)} aria-label={`Decrease ${item.name}`}>−</button>
-              <span>{item.quantity}</span>
-              <button onClick={() => increase(item)} aria-label={`Increase ${item.name}`}>+</button>
-            </div>
-            <p className="line-total">Total: ${item.cost * item.quantity}</p>
-            <button className="delete" onClick={() => dispatch(removeItem(item.name))}>Delete</button>
+            <button className="cart-item-delete" onClick={() => handleRemove(item)}>Delete</button>
           </div>
         ))}
 
-        <h3 className="cart-total">Total cart amount: ${totalAmount}</h3>
-        <div className="actions">
-          <button className="btn secondary" onClick={() => go('plants')}>Continue Shopping</button>
-          <button className="btn" onClick={() => alert('Checkout: Coming Soon')}>Checkout</button>
+        <div className="continue_shopping_btn">
+          <button className="get-started-button" onClick={handleContinueShopping}>Continue Shopping</button>
+          <button className="get-started-button1" onClick={handleCheckoutShopping}>Checkout</button>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
