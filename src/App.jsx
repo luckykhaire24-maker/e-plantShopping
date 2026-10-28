@@ -1,49 +1,24 @@
-
 import React, { useState } from 'react';
 import ProductList from './ProductList';
-import './App.css';
+import CartItem from './CartItem';
 import AboutUs from './AboutUs';
 
 function App() {
-  
-  const [showProductList, setShowProductList] = useState(false);
+  const [page, setPage] = useState('home'); // 'home' | 'plants' | 'cart'
 
-  const handleGetStartedClick = () => {
-    setShowProductList(true);
-  };
-
-  const handleHomeClick = () => {
-    setShowProductList(false);
-  };
+  if (page === 'plants') return <ProductList go={setPage} />;
+  if (page === 'cart') return <CartItem go={setPage} />;
 
   return (
-    <div className="app-container">
-      <div className={`landing-page ${showProductList ? 'fade-out' : ''}`}>
-        <div className="background-image"></div>
-        <div className="content">
-         <div className="landing_content">
-         <h1>Welcome To Paradise Nursery</h1>
-          <div className="divider"></div>
-          <p>Where Green Meets Serenity</p>
-         
-          <button className="get-started-button" onClick={handleGetStartedClick}>
-            Get Started
-          </button>
-         </div>
-          <div className="aboutus_container">
-          <AboutUs/>
-          </div>
-          </div>
-
-      </div>
-      <div className={`product-list-container ${showProductList ? 'visible' : ''}`}>
-        <ProductList onHomeClick={handleHomeClick}/>
+    <div className="landing">
+      <div className="landing-box">
+        <h1>Paradise Nursery</h1>
+        <p>Healthy houseplants, delivered with care.</p>
+        <button className="btn" onClick={() => setPage('plants')}>Get Started</button>
+        <AboutUs />
       </div>
     </div>
   );
 }
 
 export default App;
-
-
-
